@@ -4,50 +4,48 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Mismatched ZIPs — Adstruc vs Geocodio (+ Description)</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
   :root {
     --ad: #2563eb;
     --geo: #f59e0b;
     --desc: #8b5cf6;
-    --bg: #ffffff;
-    --panel: #ffffff;
-    --muted: #6b7280;
-    --text: #111827;
+    --panel: #fff; --muted:#6b7280; --text:#111827;
   }
-  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
-  .app { display: grid; grid-template-columns: 420px 1fr; gap: 10px; height: 100vh; }
-  .sidebar { background: var(--panel); padding: 12px; overflow-y: auto; border-right: 1px solid #e5e7eb; }
-  .header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
-  .title { font-weight: 700; font-size: 18px; letter-spacing: 0.2px; }
-  .legend { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
-  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: #fafafa; border: 1px solid #e5e7eb; }
-  .dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
-  .dot.ad { background: var(--ad); } .dot.geo { background: var(--geo); } .dot.desc { background: var(--desc); }
-  .toolbar { display: flex; gap: 8px; }
-  .btn { background: #fafafa; color: var(--text); border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-weight: 600; }
-  .btn:hover { border-color: #d1d5db; }
-  .list { display: grid; gap: 8px; }
-  .item { padding: 10px; background: #fafafa; border: 1px solid #e5e7eb; border-radius: 12px; cursor: pointer; }
-  .item:hover { border-color: #d1d5db; }
-  .rowtop { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
-  .zips { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .badge { font-weight: 800; font-size: 15px; padding: 2px 8px; border-radius: 8px; letter-spacing: 0.3px; border: 1px solid; }
-  .badge.ad { border-color: var(--ad); background: rgba(37,99,235,0.06); }
-  .badge.geo { border-color: var(--geo); background: rgba(245,158,11,0.06); }
-  .badge.desc { border-color: var(--desc); background: rgba(139,92,246,0.06); }
-  .meta { font-size: 12px; color: var(--muted); }
-  #map { height: 100vh; width: 100%; }
-  @media (max-width: 900px) { .app { grid-template-columns: 1fr; } #map { height: 50vh; } }
+  html,body{margin:0;height:100%;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--text);}
+  .app{display:grid;grid-template-columns:460px 1fr;gap:10px;height:100vh;}
+  .sidebar{background:#fff;padding:12px;overflow:auto;border-right:1px solid #e5e7eb;}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .title{font-weight:700;font-size:18px;}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);}
+  .chip{display:inline-flex;gap:6px;align-items:center;padding:4px 8px;border-radius:999px;border:1px solid #e5e7eb;background:#fafafa;}
+  .dot{width:10px;height:10px;border-radius:999px;display:inline-block;}
+  .dot.ad{background:var(--ad);} .dot.geo{background:var(--geo);} .dot.desc{background:var(--desc);}
+  .toolbar{display:flex;gap:8px;}
+  .btn{background:#fafafa;border:1px solid #e5e7eb;border-radius:8px;padding:6px 10px;font-weight:600;cursor:pointer;}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px;}
+  .filters select{border:1px solid #e5e7eb;border-radius:8px;padding:6px;background:#fff;}
+  .summary{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 10px;font-size:12px;color:var(--muted);}
+  .summary .pill{background:#fafafa;border:1px solid #e5e7eb;border-radius:999px;padding:4px 8px;}
+  .list{display:grid;gap:8px;}
+  .item{padding:10px;background:#fafafa;border:1px solid #e5e7eb;border-radius:12px;cursor:pointer;}
+  .item:hover{border-color:#d1d5db;}
+  .rowtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:10px;}
+  .zips{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .badge{font-weight:800;font-size:15px;padding:2px 8px;border-radius:8px;letter-spacing:0.3px;border:1px solid;}
+  .badge.ad{border-color:var(--ad);background:rgba(37,99,235,0.06);}
+  .badge.geo{border-color:var(--geo);background:rgba(245,158,11,0.06);}
+  .badge.desc{border-color:var(--desc);background:rgba(139,92,246,0.06);}
+  .match-badge{font-weight:700;font-size:12px;padding:2px 6px;border-radius:999px;border:1px solid;margin-left:6px;}
+  .match-ad{border-color:var(--ad);background:rgba(37,99,235,0.1);}
+  .match-geo{border-color:var(--geo);background:rgba(245,158,11,0.15);}
+  .match-none{border-color:#d1d5db;background:#f9fafb;color:#374151;}
+  .countpill{font-size:11px;color:#334155;background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;padding:2px 6px;margin-left:6px;font-weight:700;}
+  #map{height:100vh;width:100%;}
+  @media (max-width:980px){.app{grid-template-columns:1fr;}#map{height:50vh;}}
 
-  .summary { display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 10px 0; font-size:12px; color: var(--muted); }
-  .summary .pill { background:#fafafa; border:1px solid #e5e7eb; border-radius:999px; padding:4px 8px; }
-  .match-badge { font-weight:700; font-size:12px; padding:2px 6px; border-radius:999px; border:1px solid; margin-left:6px; }
-  .match-ad { border-color: var(--ad); background: rgba(37,99,235,0.08); color:#0f172a; }
-  .match-geo { border-color: var(--geo); background: rgba(245,158,11,0.12); color:#0f172a; }
-  .match-none { border-color: #d1d5db; background:#f9fafb; color:#6b7280; }
-  .glow-ad { filter: drop-shadow(0 0 2px rgba(37,99,235,0.7)); }
-  .glow-geo { filter: drop-shadow(0 0 2px rgba(245,158,11,0.7)); }
+  .notice{margin:6px 0 10px; padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px; background:#fafafa; font-size:12px; color:#4b5563;}
+  .notice b{color:#111827;}
 </style>
 </head>
 <body>
@@ -59,7 +57,7 @@
         <div class="legend">
           <span class="chip"><span class="dot ad"></span> Adstruc</span>
           <span class="chip"><span class="dot geo"></span> Geocodio</span>
-          <span class="chip" id="descChip" style="display:none;"><span class="dot desc" id="descDot"></span> <span id="descLabel">Description</span></span>
+          <span class="chip"><span class="dot desc"></span> Description (neither)</span>
         </div>
       </div>
       <div class="toolbar">
@@ -67,42 +65,93 @@
         <button class="btn" id="nextBtn">Next</button>
       </div>
     </div>
-    <div class="meta" id="countMeta"></div>
+
+    <div class="filters">
+      <label>Desc ZIP:
+        <select id="descFilter">
+          <option value="all">All</option>
+          <option value="has">Has</option>
+          <option value="missing">Missing</option>
+        </select>
+      </label>
+      <label>Match:
+        <select id="matchFilter">
+          <option value="any">Any</option>
+          <option value="ad">Adstruc</option>
+          <option value="geo">Geocodio</option>
+          <option value="none">Neither</option>
+        </select>
+      </label>
+    </div>
+
     <div class="summary" id="summaryBar"></div>
-    <div class="meta" style="margin:6px 0;">Sheet: Sheet1</div>
-    <div class="meta" style="margin:6px 0;">Adstruc ZIP column: Geocodio Postal Code</div>
-    <div class="meta" style="margin:6px 0;">Geocodio ZIP column: ZIP Code</div>
-    <div class="meta" style="margin:6px 0;">Description column: Description</div>
-    <div class="meta" style="margin:6px 0;">Latitude/Longitude: Latitude / Longitude</div>
+    <div id="notice" class="notice" style="display:none;"></div>
     <div class="list" id="list"></div>
   </aside>
   <main id="map"></main>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const DATA = [{"row_index": 0, "ad_zip": "30328", "geo_zip": "30338", "desc_zip": null, "lat": 33.932455, "lng": -84.351579}, {"row_index": 1, "ad_zip": "30328", "geo_zip": "30338", "desc_zip": null, "lat": 33.932491, "lng": -84.351651}, {"row_index": 2, "ad_zip": "30046", "geo_zip": "30044", "desc_zip": null, "lat": 33.9584, "lng": -84.0439}, {"row_index": 3, "ad_zip": "30328", "geo_zip": "30319", "desc_zip": null, "lat": 33.9149, "lng": -84.3476}, {"row_index": 4, "ad_zip": "30023", "geo_zip": "30080", "desc_zip": null, "lat": 33.8317, "lng": -84.4855}, {"row_index": 5, "ad_zip": "30331", "geo_zip": "30344", "desc_zip": null, "lat": 33.6661, "lng": -84.498309}, {"row_index": 6, "ad_zip": "30315", "geo_zip": "30310", "desc_zip": null, "lat": 33.704092, "lng": -84.404687}, {"row_index": 7, "ad_zip": "30329", "geo_zip": "30319", "desc_zip": null, "lat": 33.857818, "lng": -84.312691}, {"row_index": 8, "ad_zip": "30060", "geo_zip": "30062", "desc_zip": null, "lat": 33.993352, "lng": -84.581603}, {"row_index": 9, "ad_zip": "30360", "geo_zip": "30341", "desc_zip": null, "lat": 33.909531, "lng": -84.2838}, {"row_index": 10, "ad_zip": "30308", "geo_zip": "30306", "desc_zip": null, "lat": 33.77353, "lng": -84.36427}, {"row_index": 11, "ad_zip": "30062", "geo_zip": "30066", "desc_zip": null, "lat": 34.017341, "lng": -84.492372}, {"row_index": 12, "ad_zip": "30313", "geo_zip": "30314", "desc_zip": null, "lat": 33.753689, "lng": -84.398917}, {"row_index": 13, "ad_zip": "30313", "geo_zip": "30314", "desc_zip": null, "lat": 33.753323, "lng": -84.403192}, {"row_index": 14, "ad_zip": "30363", "geo_zip": "30309", "desc_zip": null, "lat": 33.792905, "lng": -84.397454}, {"row_index": 15, "ad_zip": "30022", "geo_zip": "30009", "desc_zip": "30022", "lat": 34.04171323, "lng": -84.30437288}, {"row_index": 16, "ad_zip": "30022", "geo_zip": "30076", "desc_zip": "30022", "lat": 34.0227, "lng": -84.271305}, {"row_index": 17, "ad_zip": "30080", "geo_zip": "30082", "desc_zip": "30080", "lat": 33.89036101, "lng": -84.53826626}, {"row_index": 18, "ad_zip": "30044", "geo_zip": "30046", "desc_zip": "30044", "lat": 33.93622248, "lng": -84.02635296}, {"row_index": 19, "ad_zip": "30331", "geo_zip": "30336", "desc_zip": "30331", "lat": 33.69973351, "lng": -84.57789362}, {"row_index": 20, "ad_zip": "30080", "geo_zip": "30082", "desc_zip": "30082", "lat": 33.84246544, "lng": -84.5008622}, {"row_index": 21, "ad_zip": "30066", "geo_zip": "30062", "desc_zip": "30066", "lat": 33.99396393, "lng": -84.50903821}, {"row_index": 22, "ad_zip": "78717", "geo_zip": "78613", "desc_zip": null, "lat": 30.4759, "lng": -97.7991}, {"row_index": 23, "ad_zip": "78744", "geo_zip": "78741", "desc_zip": null, "lat": 30.215483, "lng": -97.743883}, {"row_index": 24, "ad_zip": "78621", "geo_zip": "78653", "desc_zip": null, "lat": 30.35057, "lng": -97.48598}, {"row_index": 25, "ad_zip": "78727", "geo_zip": "78759", "desc_zip": "12591", "lat": 30.43114, "lng": -97.76197}, {"row_index": 26, "ad_zip": "78749", "geo_zip": "78745", "desc_zip": "78745", "lat": 30.22961483, "lng": -97.82235739}, {"row_index": 27, "ad_zip": "78664", "geo_zip": "78665", "desc_zip": "78664", "lat": 30.498947, "lng": -97.614735}, {"row_index": 28, "ad_zip": "78613", "geo_zip": "78750", "desc_zip": "78750", "lat": 30.473624, "lng": -97.800887}, {"row_index": 29, "ad_zip": "78613", "geo_zip": "78750", "desc_zip": "78613", "lat": 30.467152, "lng": -97.807375}, {"row_index": 30, "ad_zip": "78681", "geo_zip": "78728", "desc_zip": "78681", "lat": 30.48055942, "lng": -97.68399572}, {"row_index": 31, "ad_zip": "78726", "geo_zip": "78730", "desc_zip": "78726", "lat": 30.40464217, "lng": -97.85184652}, {"row_index": 32, "ad_zip": "28027", "geo_zip": "28081", "desc_zip": null, "lat": 35.43611, "lng": -80.66685}, {"row_index": 33, "ad_zip": "28027", "geo_zip": "28075", "desc_zip": null, "lat": 35.39364, "lng": -80.70254}, {"row_index": 34, "ad_zip": "28027", "geo_zip": "28262", "desc_zip": null, "lat": 35.3613, "lng": -80.72164}, {"row_index": 35, "ad_zip": "28273", "geo_zip": "28134", "desc_zip": null, "lat": 35.11705, "lng": -80.90413}, {"row_index": 36, "ad_zip": "28027", "geo_zip": "28025", "desc_zip": null, "lat": 35.34217, "lng": -80.61192}, {"row_index": 37, "ad_zip": "28105", "geo_zip": "28104", "desc_zip": null, "lat": 35.10053, "lng": -80.67733}, {"row_index": 38, "ad_zip": "28110", "geo_zip": "28104", "desc_zip": null, "lat": 35.08958, "lng": -80.66697}, {"row_index": 39, "ad_zip": "28027", "geo_zip": "28075", "desc_zip": null, "lat": 35.3772, "lng": -80.65667}, {"row_index": 40, "ad_zip": "28227", "geo_zip": "28212", "desc_zip": null, "lat": 35.20174, "lng": -80.7238}, {"row_index": 41, "ad_zip": "28227", "geo_zip": "28079", "desc_zip": "10124", "lat": 35.20834, "lng": -80.67138}, {"row_index": 42, "ad_zip": "28217", "geo_zip": "28209", "desc_zip": null, "lat": 35.17424, "lng": -80.8752}, {"row_index": 43, "ad_zip": "28273", "geo_zip": "28210", "desc_zip": null, "lat": 35.11968, "lng": -80.88008}, {"row_index": 44, "ad_zip": "28277", "geo_zip": "28105", "desc_zip": null, "lat": 35.05205025, "lng": -80.76751097}, {"row_index": 45, "ad_zip": "28277", "geo_zip": "28105", "desc_zip": null, "lat": 35.0527, "lng": -80.7674}, {"row_index": 46, "ad_zip": "28277", "geo_zip": "28105", "desc_zip": null, "lat": 35.05164046, "lng": -80.76712037}, {"row_index": 47, "ad_zip": "28217", "geo_zip": "28210", "desc_zip": "28210", "lat": 35.162605, "lng": -80.874662}, {"row_index": 48, "ad_zip": "28226", "geo_zip": "28210", "desc_zip": "28226", "lat": 35.089025, "lng": -80.859643}, {"row_index": 49, "ad_zip": "28036", "geo_zip": "28078", "desc_zip": "28036", "lat": 35.44256528, "lng": -80.76244145}, {"row_index": 50, "ad_zip": "28269", "geo_zip": "28078", "desc_zip": "28078", "lat": 35.38424246, "lng": -80.78520789}, {"row_index": 51, "ad_zip": "80030", "geo_zip": "80221", "desc_zip": null, "lat": 39.839266, "lng": -105.024353}, {"row_index": 52, "ad_zip": "80232", "geo_zip": "80227", "desc_zip": "80232", "lat": 39.681352, "lng": -105.121835}, {"row_index": 53, "ad_zip": "80031", "geo_zip": "80260", "desc_zip": null, "lat": 39.866892, "lng": -105.024909}, {"row_index": 54, "ad_zip": "80031", "geo_zip": "80003", "desc_zip": null, "lat": 39.856559, "lng": -105.056493}, {"row_index": 55, "ad_zip": "80020", "geo_zip": "80031", "desc_zip": null, "lat": 39.913964, "lng": -105.033486}, {"row_index": 56, "ad_zip": "80228", "geo_zip": "80227", "desc_zip": null, "lat": 39.681991, "lng": -105.128591}, {"row_index": 57, "ad_zip": "50317", "geo_zip": "50313", "desc_zip": null, "lat": 41.6357, "lng": -93.5764}, {"row_index": 58, "ad_zip": "50317", "geo_zip": "50313", "desc_zip": null, "lat": 41.6357, "lng": -93.5764}, {"row_index": 59, "ad_zip": "50309", "geo_zip": "50317", "desc_zip": null, "lat": 41.582, "lng": -93.5973}, {"row_index": 60, "ad_zip": "50309", "geo_zip": "50317", "desc_zip": null, "lat": 41.582, "lng": -93.5973}, {"row_index": 61, "ad_zip": "50309", "geo_zip": "50317", "desc_zip": null, "lat": 41.582, "lng": -93.5973}, {"row_index": 62, "ad_zip": "50322", "geo_zip": "50310", "desc_zip": null, "lat": 41.6364, "lng": -93.6985}, {"row_index": 63, "ad_zip": "50309", "geo_zip": "50312", "desc_zip": null, "lat": 41.5855, "lng": -93.644}, {"row_index": 64, "ad_zip": "35758", "geo_zip": "35757", "desc_zip": null, "lat": 34.7487, "lng": -86.77}, {"row_index": 65, "ad_zip": "35758", "geo_zip": "35757", "desc_zip": "35758", "lat": 34.747498, "lng": -86.777508}, {"row_index": 66, "ad_zip": "35758", "geo_zip": "35757", "desc_zip": "35758", "lat": 34.75670119, "lng": -86.73685237}, {"row_index": 67, "ad_zip": "64034", "geo_zip": "64082", "desc_zip": null, "lat": 38.827917, "lng": -94.375467}, {"row_index": 68, "ad_zip": "64034", "geo_zip": "64082", "desc_zip": null, "lat": 38.827917, "lng": -94.375467}, {"row_index": 69, "ad_zip": "66202", "geo_zip": "66203", "desc_zip": null, "lat": 39.0425, "lng": -94.6677}, {"row_index": 70, "ad_zip": "64150", "geo_zip": "64151", "desc_zip": null, "lat": 39.1888, "lng": -94.6091}, {"row_index": 71, "ad_zip": "66209", "geo_zip": "66211", "desc_zip": "66209", "lat": 38.914673, "lng": -94.643622}, {"row_index": 72, "ad_zip": "66213", "geo_zip": "66210", "desc_zip": "66213", "lat": 38.91487126, "lng": -94.70290146}, {"row_index": 73, "ad_zip": "66209", "geo_zip": "66210", "desc_zip": "66209", "lat": 38.91347246, "lng": -94.66572259}, {"row_index": 74, "ad_zip": "92627", "geo_zip": "92626", "desc_zip": null, "lat": 33.664628, "lng": -117.897227}, {"row_index": 75, "ad_zip": "37213", "geo_zip": "37206", "desc_zip": null, "lat": 36.1743, "lng": -86.77}, {"row_index": 76, "ad_zip": "37205", "geo_zip": "37209", "desc_zip": null, "lat": 36.127508, "lng": -86.902651}, {"row_index": 77, "ad_zip": "37076", "geo_zip": "37138", "desc_zip": null, "lat": 36.1995, "lng": -86.6198}, {"row_index": 78, "ad_zip": "37076", "geo_zip": "37138", "desc_zip": null, "lat": 36.1995, "lng": -86.6198}, {"row_index": 79, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 80, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 81, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 82, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 83, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 84, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 85, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 86, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 87, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 88, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 89, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 90, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 91, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 92, "ad_zip": "37217", "geo_zip": "37214", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176}, {"row_index": 93, "ad_zip": "37064", "geo_zip": "37067", "desc_zip": "37064", "lat": 35.91772, "lng": -86.836249}, {"row_index": 94, "ad_zip": "68123", "geo_zip": "68147", "desc_zip": null, "lat": 41.1624, "lng": -95.9397}, {"row_index": 95, "ad_zip": "68123", "geo_zip": "68147", "desc_zip": null, "lat": 41.162401, "lng": -95.939701}, {"row_index": 96, "ad_zip": "68114", "geo_zip": "68106", "desc_zip": null, "lat": 41.2525, "lng": -96.0236}, {"row_index": 97, "ad_zip": "85248", "geo_zip": "85226", "desc_zip": null, "lat": 33.226100921631, "lng": -111.92610168457}, {"row_index": 98, "ad_zip": "85142", "geo_zip": "85242", "desc_zip": null, "lat": 33.2144, "lng": -111.6861}, {"row_index": 99, "ad_zip": "85205", "geo_zip": "85206", "desc_zip": null, "lat": 33.415236, "lng": -111.74885}, {"row_index": 100, "ad_zip": "85205", "geo_zip": "85206", "desc_zip": null, "lat": 33.415241, "lng": -111.749913}, {"row_index": 101, "ad_zip": "85205", "geo_zip": "85206", "desc_zip": null, "lat": 33.415234, "lng": -111.74992}, {"row_index": 102, "ad_zip": "85213", "geo_zip": "85205", "desc_zip": null, "lat": 33.416809, "lng": -111.753433}, {"row_index": 103, "ad_zip": "85213", "geo_zip": "85205", "desc_zip": null, "lat": 33.416803, "lng": -111.753434}, {"row_index": 104, "ad_zip": "85008", "geo_zip": "85006", "desc_zip": null, "lat": 33.4543, "lng": -112.0304}, {"row_index": 105, "ad_zip": "85215", "geo_zip": "85207", "desc_zip": "85207", "lat": 33.46508801, "lng": -111.6827444}, {"row_index": 106, "ad_zip": "27545", "geo_zip": "27610", "desc_zip": null, "lat": 35.7956, "lng": -78.522}, {"row_index": 107, "ad_zip": "27612", "geo_zip": "27613", "desc_zip": null, "lat": 35.8638, "lng": -78.713}, {"row_index": 108, "ad_zip": "27613", "geo_zip": "27615", "desc_zip": "27613", "lat": 35.888489, "lng": -78.678879}, {"row_index": 109, "ad_zip": "27519", "geo_zip": "27560", "desc_zip": "27519", "lat": 35.847695, "lng": -78.889121}, {"row_index": 110, "ad_zip": "84107", "geo_zip": "84115", "desc_zip": null, "lat": 40.692924, "lng": -111.902214}, {"row_index": 111, "ad_zip": "84115", "geo_zip": "84101", "desc_zip": null, "lat": 40.7418, "lng": -111.9019}, {"row_index": 112, "ad_zip": "84111", "geo_zip": "84115", "desc_zip": null, "lat": 40.7427, "lng": -111.8879}, {"row_index": 113, "ad_zip": "84129", "geo_zip": "84119", "desc_zip": null, "lat": 40.67037, "lng": -111.9578}, {"row_index": 114, "ad_zip": "84129", "geo_zip": "84118", "desc_zip": null, "lat": 40.66736, "lng": -111.986}, {"row_index": 115, "ad_zip": "84129", "geo_zip": "84118", "desc_zip": null, "lat": 40.65412, "lng": -111.9867}, {"row_index": 116, "ad_zip": "84129", "geo_zip": "84084", "desc_zip": null, "lat": 40.6377, "lng": -111.958}, {"row_index": 117, "ad_zip": "84129", "geo_zip": "84084", "desc_zip": null, "lat": 40.63797, "lng": -111.9575}, {"row_index": 118, "ad_zip": "84009", "geo_zip": "84095", "desc_zip": "84095", "lat": 40.54169917, "lng": -111.9852778}, {"row_index": 119, "ad_zip": "84009", "geo_zip": "84095", "desc_zip": "84095", "lat": 40.54330464, "lng": -111.9866882}, {"row_index": 120, "ad_zip": "84129", "geo_zip": "84118", "desc_zip": "84118", "lat": 40.666437, "lng": -111.941311}, {"row_index": 121, "ad_zip": "78201", "geo_zip": "78213", "desc_zip": null, "lat": 29.4935, "lng": -98.5463}, {"row_index": 122, "ad_zip": "78148", "geo_zip": "78154", "desc_zip": null, "lat": 29.58, "lng": -98.3131}, {"row_index": 123, "ad_zip": "78250", "geo_zip": "78240", "desc_zip": null, "lat": 29.531611, "lng": -98.644197}, {"row_index": 124, "ad_zip": "78201", "geo_zip": "78207", "desc_zip": null, "lat": 29.442189, "lng": -98.513634}, {"row_index": 125, "ad_zip": "78250", "geo_zip": "78254", "desc_zip": "78254", "lat": 29.5487672, "lng": -98.6665749}, {"row_index": 126, "ad_zip": "78258", "geo_zip": "78260", "desc_zip": "78260", "lat": 29.67443465, "lng": -98.45386091}];
-const adColor = "#2563eb";
-const geoColor = "#f59e0b";
+const ALL_DATA = [{"ad_zip": "30338", "geo_zip": "30328", "desc_zip": null, "lat": 33.932455, "lng": -84.351579, "row_indices": [0, 1], "count": 2}, {"ad_zip": "30044", "geo_zip": "30046", "desc_zip": null, "lat": 33.9584, "lng": -84.0439, "row_indices": [2], "count": 1}, {"ad_zip": "30319", "geo_zip": "30328", "desc_zip": null, "lat": 33.9149, "lng": -84.3476, "row_indices": [3], "count": 1}, {"ad_zip": "30080", "geo_zip": "30023", "desc_zip": null, "lat": 33.8317, "lng": -84.4855, "row_indices": [4], "count": 1}, {"ad_zip": "30344", "geo_zip": "30331", "desc_zip": null, "lat": 33.6661, "lng": -84.498309, "row_indices": [5], "count": 1}, {"ad_zip": "30310", "geo_zip": "30315", "desc_zip": null, "lat": 33.704092, "lng": -84.404687, "row_indices": [6], "count": 1}, {"ad_zip": "30319", "geo_zip": "30329", "desc_zip": null, "lat": 33.857818, "lng": -84.312691, "row_indices": [7], "count": 1}, {"ad_zip": "30062", "geo_zip": "30060", "desc_zip": null, "lat": 33.993352, "lng": -84.581603, "row_indices": [8], "count": 1}, {"ad_zip": "30341", "geo_zip": "30360", "desc_zip": null, "lat": 33.909531, "lng": -84.2838, "row_indices": [9], "count": 1}, {"ad_zip": "30306", "geo_zip": "30308", "desc_zip": null, "lat": 33.77353, "lng": -84.36427, "row_indices": [10], "count": 1}, {"ad_zip": "30066", "geo_zip": "30062", "desc_zip": null, "lat": 34.017341, "lng": -84.492372, "row_indices": [11], "count": 1}, {"ad_zip": "30314", "geo_zip": "30313", "desc_zip": null, "lat": 33.753689, "lng": -84.398917, "row_indices": [12, 13, 128, 129], "count": 4}, {"ad_zip": "30309", "geo_zip": "30363", "desc_zip": null, "lat": 33.792905, "lng": -84.397454, "row_indices": [14], "count": 1}, {"ad_zip": "30009", "geo_zip": "30022", "desc_zip": "30022", "lat": 34.04171323, "lng": -84.30437288, "row_indices": [15], "count": 1}, {"ad_zip": "30076", "geo_zip": "30022", "desc_zip": "30022", "lat": 34.0227, "lng": -84.271305, "row_indices": [16], "count": 1}, {"ad_zip": "30082", "geo_zip": "30080", "desc_zip": "30080", "lat": 33.89036101, "lng": -84.53826626, "row_indices": [17], "count": 1}, {"ad_zip": "30046", "geo_zip": "30044", "desc_zip": "30044", "lat": 33.93622248, "lng": -84.02635296, "row_indices": [18], "count": 1}, {"ad_zip": "30336", "geo_zip": "30331", "desc_zip": "30331", "lat": 33.69973351, "lng": -84.57789362, "row_indices": [19], "count": 1}, {"ad_zip": "30082", "geo_zip": "30080", "desc_zip": "30082", "lat": 33.84246544, "lng": -84.5008622, "row_indices": [20], "count": 1}, {"ad_zip": "30062", "geo_zip": "30066", "desc_zip": "30066", "lat": 33.99396393, "lng": -84.50903821, "row_indices": [21], "count": 1}, {"ad_zip": "78613", "geo_zip": "78717", "desc_zip": null, "lat": 30.4759, "lng": -97.7991, "row_indices": [22], "count": 1}, {"ad_zip": "78741", "geo_zip": "78744", "desc_zip": null, "lat": 30.215483, "lng": -97.743883, "row_indices": [23], "count": 1}, {"ad_zip": "78653", "geo_zip": "78621", "desc_zip": null, "lat": 30.35057, "lng": -97.48598, "row_indices": [24], "count": 1}, {"ad_zip": "78759", "geo_zip": "78727", "desc_zip": "12591", "lat": 30.43114, "lng": -97.76197, "row_indices": [25], "count": 1}, {"ad_zip": "78745", "geo_zip": "78749", "desc_zip": "78745", "lat": 30.22961483, "lng": -97.82235739, "row_indices": [26], "count": 1}, {"ad_zip": "78665", "geo_zip": "78664", "desc_zip": "78664", "lat": 30.498947, "lng": -97.614735, "row_indices": [27], "count": 1}, {"ad_zip": "78750", "geo_zip": "78613", "desc_zip": "78750", "lat": 30.473624, "lng": -97.800887, "row_indices": [28], "count": 1}, {"ad_zip": "78750", "geo_zip": "78613", "desc_zip": "78613", "lat": 30.467152, "lng": -97.807375, "row_indices": [29], "count": 1}, {"ad_zip": "78728", "geo_zip": "78681", "desc_zip": "78681", "lat": 30.48055942, "lng": -97.68399572, "row_indices": [30], "count": 1}, {"ad_zip": "78730", "geo_zip": "78726", "desc_zip": "78726", "lat": 30.40464217, "lng": -97.85184652, "row_indices": [31], "count": 1}, {"ad_zip": "28081", "geo_zip": "28027", "desc_zip": null, "lat": 35.43611, "lng": -80.66685, "row_indices": [32], "count": 1}, {"ad_zip": "28075", "geo_zip": "28027", "desc_zip": null, "lat": 35.39364, "lng": -80.70254, "row_indices": [33, 39], "count": 2}, {"ad_zip": "28262", "geo_zip": "28027", "desc_zip": null, "lat": 35.3613, "lng": -80.72164, "row_indices": [34], "count": 1}, {"ad_zip": "28134", "geo_zip": "28273", "desc_zip": null, "lat": 35.11705, "lng": -80.90413, "row_indices": [35], "count": 1}, {"ad_zip": "28025", "geo_zip": "28027", "desc_zip": null, "lat": 35.34217, "lng": -80.61192, "row_indices": [36], "count": 1}, {"ad_zip": "28104", "geo_zip": "28105", "desc_zip": null, "lat": 35.10053, "lng": -80.67733, "row_indices": [37], "count": 1}, {"ad_zip": "28104", "geo_zip": "28110", "desc_zip": null, "lat": 35.08958, "lng": -80.66697, "row_indices": [38], "count": 1}, {"ad_zip": "28212", "geo_zip": "28227", "desc_zip": null, "lat": 35.20174, "lng": -80.7238, "row_indices": [40], "count": 1}, {"ad_zip": "28079", "geo_zip": "28227", "desc_zip": "10124", "lat": 35.20834, "lng": -80.67138, "row_indices": [41], "count": 1}, {"ad_zip": "28209", "geo_zip": "28217", "desc_zip": null, "lat": 35.17424, "lng": -80.8752, "row_indices": [42], "count": 1}, {"ad_zip": "28210", "geo_zip": "28273", "desc_zip": null, "lat": 35.11968, "lng": -80.88008, "row_indices": [43], "count": 1}, {"ad_zip": "28105", "geo_zip": "28277", "desc_zip": null, "lat": 35.05205025, "lng": -80.76751097, "row_indices": [44, 45, 46], "count": 3}, {"ad_zip": "28210", "geo_zip": "28217", "desc_zip": "28210", "lat": 35.162605, "lng": -80.874662, "row_indices": [47], "count": 1}, {"ad_zip": "28210", "geo_zip": "28226", "desc_zip": "28226", "lat": 35.089025, "lng": -80.859643, "row_indices": [48], "count": 1}, {"ad_zip": "28078", "geo_zip": "28036", "desc_zip": "28036", "lat": 35.44256528, "lng": -80.76244145, "row_indices": [49], "count": 1}, {"ad_zip": "28078", "geo_zip": "28269", "desc_zip": "28078", "lat": 35.38424246, "lng": -80.78520789, "row_indices": [50], "count": 1}, {"ad_zip": "80221", "geo_zip": "80030", "desc_zip": null, "lat": 39.839266, "lng": -105.024353, "row_indices": [51], "count": 1}, {"ad_zip": "80227", "geo_zip": "80232", "desc_zip": "80232", "lat": 39.681352, "lng": -105.121835, "row_indices": [52], "count": 1}, {"ad_zip": "80260", "geo_zip": "80031", "desc_zip": null, "lat": 39.866892, "lng": -105.024909, "row_indices": [53], "count": 1}, {"ad_zip": "80003", "geo_zip": "80031", "desc_zip": null, "lat": 39.856559, "lng": -105.056493, "row_indices": [54], "count": 1}, {"ad_zip": "80031", "geo_zip": "80020", "desc_zip": null, "lat": 39.913964, "lng": -105.033486, "row_indices": [55], "count": 1}, {"ad_zip": "80227", "geo_zip": "80228", "desc_zip": null, "lat": 39.681991, "lng": -105.128591, "row_indices": [56], "count": 1}, {"ad_zip": "50313", "geo_zip": "50317", "desc_zip": null, "lat": 41.6357, "lng": -93.5764, "row_indices": [57, 58], "count": 2}, {"ad_zip": "50317", "geo_zip": "50309", "desc_zip": null, "lat": 41.582, "lng": -93.5973, "row_indices": [59, 60, 61], "count": 3}, {"ad_zip": "50310", "geo_zip": "50322", "desc_zip": null, "lat": 41.6364, "lng": -93.6985, "row_indices": [62], "count": 1}, {"ad_zip": "50312", "geo_zip": "50309", "desc_zip": null, "lat": 41.5855, "lng": -93.644, "row_indices": [63], "count": 1}, {"ad_zip": "35757", "geo_zip": "35758", "desc_zip": null, "lat": 34.7487, "lng": -86.77, "row_indices": [64], "count": 1}, {"ad_zip": "35757", "geo_zip": "35758", "desc_zip": "35758", "lat": 34.747498, "lng": -86.777508, "row_indices": [65, 66], "count": 2}, {"ad_zip": "64082", "geo_zip": "64034", "desc_zip": null, "lat": 38.827917, "lng": -94.375467, "row_indices": [67, 68], "count": 2}, {"ad_zip": "66203", "geo_zip": "66202", "desc_zip": null, "lat": 39.0425, "lng": -94.6677, "row_indices": [69], "count": 1}, {"ad_zip": "64151", "geo_zip": "64150", "desc_zip": null, "lat": 39.1888, "lng": -94.6091, "row_indices": [70], "count": 1}, {"ad_zip": "66211", "geo_zip": "66209", "desc_zip": "66209", "lat": 38.914673, "lng": -94.643622, "row_indices": [71], "count": 1}, {"ad_zip": "66210", "geo_zip": "66213", "desc_zip": "66213", "lat": 38.91487126, "lng": -94.70290146, "row_indices": [72], "count": 1}, {"ad_zip": "66210", "geo_zip": "66209", "desc_zip": "66209", "lat": 38.91347246, "lng": -94.66572259, "row_indices": [73], "count": 1}, {"ad_zip": "92626", "geo_zip": "92627", "desc_zip": null, "lat": 33.664628, "lng": -117.897227, "row_indices": [74], "count": 1}, {"ad_zip": "37206", "geo_zip": "37213", "desc_zip": null, "lat": 36.1743, "lng": -86.77, "row_indices": [75], "count": 1}, {"ad_zip": "37209", "geo_zip": "37205", "desc_zip": null, "lat": 36.127508, "lng": -86.902651, "row_indices": [76], "count": 1}, {"ad_zip": "37138", "geo_zip": "37076", "desc_zip": null, "lat": 36.1995, "lng": -86.6198, "row_indices": [77, 78], "count": 2}, {"ad_zip": "37214", "geo_zip": "37217", "desc_zip": null, "lat": 36.1248851, "lng": -86.6762176, "row_indices": [79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92], "count": 14}, {"ad_zip": "37067", "geo_zip": "37064", "desc_zip": "37064", "lat": 35.91772, "lng": -86.836249, "row_indices": [93], "count": 1}, {"ad_zip": "68147", "geo_zip": "68123", "desc_zip": null, "lat": 41.1624, "lng": -95.9397, "row_indices": [94, 95], "count": 2}, {"ad_zip": "68106", "geo_zip": "68114", "desc_zip": null, "lat": 41.2525, "lng": -96.0236, "row_indices": [96], "count": 1}, {"ad_zip": "85226", "geo_zip": "85248", "desc_zip": null, "lat": 33.226100921631, "lng": -111.92610168457, "row_indices": [97], "count": 1}, {"ad_zip": "85242", "geo_zip": "85142", "desc_zip": null, "lat": 33.2144, "lng": -111.6861, "row_indices": [98], "count": 1}, {"ad_zip": "85206", "geo_zip": "85205", "desc_zip": null, "lat": 33.415236, "lng": -111.74885, "row_indices": [99, 100, 101, 132, 134], "count": 5}, {"ad_zip": "85205", "geo_zip": "85213", "desc_zip": null, "lat": 33.416809, "lng": -111.753433, "row_indices": [102, 103], "count": 2}, {"ad_zip": "85006", "geo_zip": "85008", "desc_zip": null, "lat": 33.4543, "lng": -112.0304, "row_indices": [104], "count": 1}, {"ad_zip": "85207", "geo_zip": "85215", "desc_zip": "85207", "lat": 33.46508801, "lng": -111.6827444, "row_indices": [105], "count": 1}, {"ad_zip": "27610", "geo_zip": "27545", "desc_zip": null, "lat": 35.7956, "lng": -78.522, "row_indices": [106], "count": 1}, {"ad_zip": "27613", "geo_zip": "27612", "desc_zip": null, "lat": 35.8638, "lng": -78.713, "row_indices": [107], "count": 1}, {"ad_zip": "27615", "geo_zip": "27613", "desc_zip": "27613", "lat": 35.888489, "lng": -78.678879, "row_indices": [108], "count": 1}, {"ad_zip": "27560", "geo_zip": "27519", "desc_zip": "27519", "lat": 35.847695, "lng": -78.889121, "row_indices": [109], "count": 1}, {"ad_zip": "84115", "geo_zip": "84107", "desc_zip": null, "lat": 40.692924, "lng": -111.902214, "row_indices": [110], "count": 1}, {"ad_zip": "84101", "geo_zip": "84115", "desc_zip": null, "lat": 40.7418, "lng": -111.9019, "row_indices": [111], "count": 1}, {"ad_zip": "84115", "geo_zip": "84111", "desc_zip": null, "lat": 40.7427, "lng": -111.8879, "row_indices": [112], "count": 1}, {"ad_zip": "84119", "geo_zip": "84129", "desc_zip": null, "lat": 40.67037, "lng": -111.9578, "row_indices": [113], "count": 1}, {"ad_zip": "84118", "geo_zip": "84129", "desc_zip": null, "lat": 40.66736, "lng": -111.986, "row_indices": [114, 115], "count": 2}, {"ad_zip": "84084", "geo_zip": "84129", "desc_zip": null, "lat": 40.6377, "lng": -111.958, "row_indices": [116, 117], "count": 2}, {"ad_zip": "84095", "geo_zip": "84009", "desc_zip": "84095", "lat": 40.54169917, "lng": -111.9852778, "row_indices": [118, 119], "count": 2}, {"ad_zip": "84118", "geo_zip": "84129", "desc_zip": "84118", "lat": 40.666437, "lng": -111.941311, "row_indices": [120], "count": 1}, {"ad_zip": "78213", "geo_zip": "78201", "desc_zip": null, "lat": 29.4935, "lng": -98.5463, "row_indices": [121], "count": 1}, {"ad_zip": "78154", "geo_zip": "78148", "desc_zip": null, "lat": 29.58, "lng": -98.3131, "row_indices": [122], "count": 1}, {"ad_zip": "78240", "geo_zip": "78250", "desc_zip": null, "lat": 29.531611, "lng": -98.644197, "row_indices": [123], "count": 1}, {"ad_zip": "78207", "geo_zip": "78201", "desc_zip": null, "lat": 29.442189, "lng": -98.513634, "row_indices": [124], "count": 1}, {"ad_zip": "78254", "geo_zip": "78250", "desc_zip": "78254", "lat": 29.5487672, "lng": -98.6665749, "row_indices": [125], "count": 1}, {"ad_zip": "78260", "geo_zip": "78258", "desc_zip": "78260", "lat": 29.67443465, "lng": -98.45386091, "row_indices": [126], "count": 1}, {"ad_zip": "30308", "geo_zip": "30306", "desc_zip": null, "lat": 33.78194, "lng": -84.36854, "row_indices": [127], "count": 1}, {"ad_zip": "85201", "geo_zip": "85210", "desc_zip": null, "lat": 33.414004, "lng": -111.856846, "row_indices": [130], "count": 1}, {"ad_zip": "85204", "geo_zip": "85210", "desc_zip": null, "lat": 33.382611, "lng": -111.822942, "row_indices": [131], "count": 1}, {"ad_zip": "85204", "geo_zip": "85203", "desc_zip": null, "lat": 33.414753, "lng": -111.805439, "row_indices": [133], "count": 1}, {"ad_zip": "78231", "geo_zip": "78216", "desc_zip": null, "lat": 29.55999, "lng": -98.51849, "row_indices": [135, 136, 141], "count": 3}, {"ad_zip": "78212", "geo_zip": "78201", "desc_zip": null, "lat": 29.44187, "lng": -98.50373, "row_indices": [137, 138, 142], "count": 3}, {"ad_zip": "78229", "geo_zip": "78240", "desc_zip": null, "lat": 29.50766, "lng": -98.58965, "row_indices": [139, 140, 143], "count": 3}];
+const adColor = "#2563eb", geoColor = "#f59e0b", descBaseColor = "#8b5cf6";
 
-function computeSummary() {
-  const total = DATA.length;
-  let withDesc = 0, matchAd = 0, matchGeo = 0, matchNone = 0;
-  DATA.forEach(r => {
-    const dz = r.desc_zip ? ('' + r.desc_zip).slice(0,5) : null;
-    const az = r.ad_zip ? ('' + r.ad_zip).slice(0,5) : null;
-    const gz = r.geo_zip ? ('' + r.geo_zip).slice(0,5) : null;
-    if (dz) {
-      withDesc++;
-      if (az && dz === az) matchAd++;
-      else if (gz && dz === gz) matchGeo++;
-      else matchNone++;
-    }
-  });
-  const pct = (n,d) => d ? Math.round((n/d)*1000)/10 : 0;
+let currentIndex = 0, VISIBLE = [...ALL_DATA];
+
+let map = L.map('map', { zoomControl: true });
+let baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(map);
+
+let marker = null;
+let overlayGroup = L.layerGroup().addTo(map);
+
+const ZCTA_BASE = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/PUMA_TAD_TAZ_UGA_ZCTA/MapServer";
+const ZCTA_LAYER_IDS = [11,10,9];
+const zctaCache = new Map();
+
+async function fetchZctaGeoJSON(zip) {
+  if (!zip) return null;
+  const z5 = ("" + zip).slice(0,5);
+  if (zctaCache.has(z5)) return zctaCache.get(z5);
+  for (let id of ZCTA_LAYER_IDS) {
+    const params = new URLSearchParams({
+      where: `GEOID='${z5}'`,
+      outFields: "GEOID",
+      returnGeometry: "true",
+      outSR: "4326",
+      f: "geojson"
+    });
+    try {
+      const resp = await fetch(`${ZCTA_BASE}/${id}/query?${params.toString()}`);
+      if (!resp.ok) continue;
+      const gj = await resp.json();
+      if (gj && gj.features && gj.features.length) {
+        zctaCache.set(z5, gj);
+        return gj;
+      }
+    } catch(e) { /* try next */ }
+  }
+  zctaCache.set(z5, null);
+  return null;
+}
+
+function statusFor(rec) {
+  const d5 = rec.desc_zip ? (''+rec.desc_zip).slice(0,5) : null;
+  const a5 = rec.ad_zip ? (''+rec.ad_zip).slice(0,5) : null;
+  const g5 = rec.geo_zip ? (''+rec.geo_zip).slice(0,5) : null;
+  if (!d5) return "missing";
+  if (a5 && d5 === a5) return "ad";
+  if (g5 && d5 === g5) return "geo";
+  return "none";
+}
+
+function computeSummary(arr) {
+  const total = arr.length;
+  let withDesc=0,matchAd=0,matchGeo=0,matchNone=0;
+  arr.forEach(r=>{ const s=statusFor(r); if(s!=="missing") withDesc++; if(s==="ad") matchAd++; else if(s==="geo") matchGeo++; else if(s==="none") matchNone++; });
+  const pct = (n,d)=> d? Math.round((n/d)*1000)/10 : 0;
   const bar = document.getElementById('summaryBar');
   bar.innerHTML = `
-    <span class="pill"><strong>Total rows:</strong> ${total}</span>
+    <span class="pill"><strong>Deduped items:</strong> ${total}</span>
     <span class="pill"><strong>With Description ZIP:</strong> ${withDesc} (${pct(withDesc,total)}%)</span>
     <span class="pill"><strong>Desc = Adstruc:</strong> ${matchAd} (${pct(matchAd,withDesc)}%)</span>
     <span class="pill"><strong>Desc = Geocodio:</strong> ${matchGeo} (${pct(matchGeo,withDesc)}%)</span>
@@ -110,205 +159,129 @@ function computeSummary() {
   `;
 }
 
-const descBaseColor = "#8b5cf6";
-
-let currentIndex = 0;
-let map = L.map('map', { zoomControl: true });
-let baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-    maxZoom: 20,
-    attribution: '&copy; OpenStreetMap, &copy; CartoDB'
-}).addTo(map);
-
-let marker = null;
-let adZctaLayer = null;
-let geoZctaLayer = null;
-let descZctaLayer = null;
-
-const ZCTA_LAYER_URL = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/PUMA_TAD_TAZ_UGA_ZCTA/MapServer/11/query";
-const zctaCache = new Map();
-
-async function fetchZctaGeoJSON(zip) {
-  if (!zip) return null;
-  const z5 = ("" + zip).slice(0,5);
-  if (zctaCache.has(z5)) return zctaCache.get(z5);
-  const params = new URLSearchParams({
-    where: `GEOID='${z5}'`,
-    outFields: "GEOID",
-    returnGeometry: "true",
-    outSR: "4326",
-    f: "geojson"
-  });
-  try {
-    const resp = await fetch(`${ZCTA_LAYER_URL}?${params.toString()}`);
-    if (!resp.ok) throw new Error(`ZCTA fetch failed: ${resp.status}`);
-    const gj = await resp.json();
-    zctaCache.set(z5, gj);
-    return gj;
-  } catch (e) {
-    console.error("Failed to fetch ZCTA for", z5, e);
-    return null;
-  }
-}
-
-function updateDescLegend(adZip, geoZip, descZip) {
-  const chip = document.getElementById('descChip');
-  const dot = document.getElementById('descDot');
-  const label = document.getElementById('descLabel');
-  if (!descZip) { chip.style.display = 'none'; return; }
-  chip.style.display = 'inline-flex';
-
-  let color = descBaseColor;
-  let text = 'Description';
-  let mark = '';
-  const d5 = ('' + descZip).slice(0,5);
-  const a5 = adZip ? ('' + adZip).slice(0,5) : null;
-  const g5 = geoZip ? ('' + geoZip).slice(0,5) : null;
-
-  if (a5 && d5 === a5) { color = adColor; text = 'Description (matches Adstruc)'; mark = ' ✔'; }
-  else if (g5 && d5 === g5) { color = geoColor; text = 'Description (matches Geocodio)'; mark = ' ✔'; }
-
-  dot.style.background = color;
-  label.textContent = text + mark + ': ' + d5;
-}
-
-
-async function drawZctaPolygons(adZip, geoZip, descZip) {
-  if (adZctaLayer) { adZctaLayer.remove(); adZctaLayer = null; }
-  if (geoZctaLayer) { geoZctaLayer.remove(); geoZctaLayer = null; }
-  if (descZctaLayer) { descZctaLayer.remove(); descZctaLayer = null; }
-
-  const layers = [];
-
-  function isMatch(zipA, zipB) {
-    if (!zipA || !zipB) return false;
-    return (''+zipA).slice(0,5) === (''+zipB).slice(0,5);
-  }
-
-  if (adZip) {
-    const gj = await fetchZctaGeoJSON(adZip);
-    if (gj && gj.features && gj.features.length) {
-      // base layer
-      adZctaLayer = L.geoJSON(gj, { style: { color: adColor, weight: 3, fillOpacity: 0.06 } }).addTo(map);
-      layers.push(adZctaLayer);
-      // glow if desc matches adstruc
-      if (isMatch(adZip, descZip)) {
-        const glow = L.geoJSON(gj, { style: { color: adColor, weight: 7, opacity: 0.25 } }).addTo(map);
-        layers.push(glow);
-      }
-    }
-  }
-
-  if (geoZip) {
-    const gj = await fetchZctaGeoJSON(geoZip);
-    if (gj && gj.features && gj.features.length) {
-      geoZctaLayer = L.geoJSON(gj, { style: { color: geoColor, weight: 3, fillOpacity: 0.06, dashArray: "6 4" } }).addTo(map);
-      layers.push(geoZctaLayer);
-      if (isMatch(geoZip, descZip)) {
-        const glow = L.geoJSON(gj, { style: { color: geoColor, weight: 7, opacity: 0.25 } }).addTo(map);
-        layers.push(glow);
-      }
-    }
-  }
-
-  if (descZip) {
-    const d5 = ('' + descZip).slice(0,5);
-    const a5 = adZip ? ('' + adZip).slice(0,5) : null;
-    const g5 = geoZip ? ('' + geoZip).slice(0,5) : null;
-    let color = descBaseColor;
-    let dash = "2 2";
-    if (a5 && d5 === a5) { color = adColor; dash = null; }
-    else if (g5 && d5 === g5) { color = geoColor; dash = "6 4"; }
-    const gj = await fetchZctaGeoJSON(d5);
-    if (gj && gj.features && gj.features.length) {
-      descZctaLayer = L.geoJSON(gj, { style: dash ? { color: color, weight: 2, fillOpacity: 0.03, dashArray: dash } : { color: color, weight: 2, fillOpacity: 0.03 } }).addTo(map);
-      layers.push(descZctaLayer);
-    }
-  }
-
-  const group = L.featureGroup(layers.filter(Boolean));
-  if (group.getLayers().length) {
-    try { map.fitBounds(group.getBounds().pad(0.2)); } catch (e) {}
-  }
+function setNotice(msg) {
+  const n = document.getElementById('notice');
+  if (!n) return;
+  if (msg) { n.innerHTML = msg; n.style.display = 'block'; }
+  else { n.textContent = ''; n.style.display = 'none'; }
 }
 
 function createItemHTML(rec, i) {
-  const lat = rec.lat !== null ? rec.lat : "N/A";
-  const lng = rec.lng !== null ? rec.lng : "N/A";
-  const dz = rec.desc_zip ? ('' + rec.desc_zip).slice(0,5) : null;
+  const dz = rec.desc_zip ? (''+rec.desc_zip).slice(0,5) : null;
+  const st = statusFor(rec);
+  let badgeClass="match-none", badgeText="Desc ≠ both";
+  if(st==="ad"){ badgeClass="match-ad"; badgeText="Desc = Adstruc"; }
+  else if(st==="geo"){ badgeClass="match-geo"; badgeText="Desc = Geocodio"; }
+  else if(st==="missing"){ badgeText="No Desc ZIP"; }
+  const count = rec.count || 1;
+  const lat = rec.lat ?? "N/A", lng = rec.lng ?? "N/A";
   return `
     <div class="item" data-idx="${i}">
       <div class="rowtop">
         <div class="zips">
-          <span class="badge ad" title="Adstruc ZIP">${rec.ad_zip || ""}</span>
-          <span class="badge geo" title="Geocodio ZIP">${rec.geo_zip || ""}</span>
-          ${ dz ? `<span class="badge desc" title="Description ZIP">${dz}</span>` : "" }
-          <span class="match-badge match-none" id="matchBadge-${i}">…</span>
+          <span class="badge ad">${rec.ad_zip??""}</span>
+          <span class="badge geo">${rec.geo_zip??""}</span>
+          ${ dz ? `<span class="badge desc">${dz}</span>` : "" }
+          <span class="match-badge ${badgeClass}" id="matchBadge-${i}">${badgeText}</span>
+          ${ count>1 ? `<span class="countpill">×${count}</span>` : "" }
         </div>
-        <div class="meta">Row: ${rec.row_index ?? "-"}</div>
+        <div class="meta">Rows: ${(rec.row_indices||[]).slice(0,3).join(', ')}${(rec.row_indices||[]).length>3?'…':''}</div>
       </div>
       <div class="meta">Lat/Lng: ${lat}, ${lng}</div>
     </div>
   `;
 }
 
-const listEl = document.getElementById("list");
-const countMetaEl = document.getElementById("countMeta");
-countMetaEl.textContent = `Showing ${DATA.length} mismatched rows.`;
-listEl.innerHTML = DATA.map((rec, i) => createItemHTML(rec, i)).join("");
-computeSummary();
+function renderList(arr) {
+  document.getElementById("list").innerHTML = arr.map((rec,i)=>createItemHTML(rec,i)).join("");
+}
 
-function focusItem(i) {
-  if (i < 0 || i >= DATA.length) return;
-  currentIndex = i;
-  const rec = DATA[i];
-  Array.from(document.querySelectorAll('.item')).forEach((el, idx) => {
-    el.style.borderColor = idx === i ? '#60a5fa' : '#e5e7eb';
-    el.style.boxShadow = idx === i ? '0 0 0 1px #60a5fa' : 'none';
-  });
-  updateDescLegend(rec.ad_zip, rec.geo_zip, rec.desc_zip);
+async function drawZctaPolygons(adZip, geoZip, descZip) {
+  overlayGroup.clearLayers();
+  const layers = [];
 
-  // Set match badge content for this item
-  const badge = document.getElementById(`matchBadge-${i}`);
-  if (badge) {
-    const d5 = rec.desc_zip ? ('' + rec.desc_zip).slice(0,5) : null;
-    const a5 = rec.ad_zip ? ('' + rec.ad_zip).slice(0,5) : null;
-    const g5 = rec.geo_zip ? ('' + rec.geo_zip).slice(0,5) : null;
-    if (d5 && a5 && d5 === a5) { badge.textContent = "Desc = Adstruc"; badge.className = "match-badge match-ad"; }
-    else if (d5 && g5 && d5 === g5) { badge.textContent = "Desc = Geocodio"; badge.className = "match-badge match-geo"; }
-    else if (d5) { badge.textContent = "Desc ≠ both"; badge.className = "match-badge match-none"; }
-    else { badge.textContent = "No Desc ZIP"; badge.className = "match-badge match-none"; }
+  if (adZip) {
+    const gj = await fetchZctaGeoJSON(adZip);
+    if (gj && gj.features && gj.features.length) {
+      const lyr = L.geoJSON(gj, { style: { color: adColor, weight: 3, fillOpacity: 0.06 }, onEachFeature:(f,layer)=>layer.bindTooltip(`Adstruc ZCTA ${adZip}`) });
+      lyr.addTo(overlayGroup); layers.push(lyr);
+    }
+  }
+  if (geoZip) {
+    const gj = await fetchZctaGeoJSON(geoZip);
+    if (gj && gj.features && gj.features.length) {
+      const lyr = L.geoJSON(gj, { style: { color: geoColor, weight: 3, fillOpacity: 0.06, dashArray: "6 4" }, onEachFeature:(f,layer)=>layer.bindTooltip(`Geocodio ZCTA ${geoZip}`) });
+      lyr.addTo(overlayGroup); layers.push(lyr);
+    }
+  }
+  let descAdded = false;
+  if (descZip) {
+    const d5 = (''+descZip).slice(0,5);
+    const gj = await fetchZctaGeoJSON(d5);
+    if (gj && gj.features && gj.features.length) {
+      let color = descBaseColor, dash="2 2", label=`Description ZCTA ${d5}`;
+      if (adZip && (''+adZip).slice(0,5)===d5) { color=adColor; dash=null; label=`Description (Adstruc) ${d5}`; }
+      else if (geoZip && (''+geoZip).slice(0,5)===d5) { color=geoColor; dash="6 4"; label=`Description (Geocodio) ${d5}`; }
+      const style = dash ? { color: color, weight:2, fillOpacity:0.03, dashArray:dash } : { color: color, weight:2, fillOpacity:0.03 };
+      const lyr = L.geoJSON(gj, { style: style, onEachFeature:(f,layer)=>layer.bindTooltip(label) });
+      lyr.addTo(overlayGroup); layers.push(lyr);
+      descAdded = true;
+    }
   }
 
+  if (descZip && !descAdded) {
+    setNotice(`<b>No Census ZCTA polygon</b> for Description ZIP <b>${(''+descZip).slice(0,5)}</b> (often USPS-only/PO Box). Showing pin only.`);
+  } else {
+    setNotice(null);
+  }
+  const group = L.featureGroup(layers);
+  if (layers.length) { try { map.fitBounds(group.getBounds().pad(0.2)); } catch(e) {} }
+}
 
-  if (rec.lat != null && rec.lng != null) {
-    const latlng = [rec.lat, rec.lng];
-    if (!marker) { marker = L.marker(latlng).addTo(map); }
-    else { marker.setLatLng(latlng); }
-    marker.bindPopup(`
-      <div style="font-weight:700;margin-bottom:4px;">Row ${rec.row_index ?? "-"}</div>
-      <div><span style="font-weight:700;color:${adColor}">Adstruc:</span> ${rec.ad_zip || ""}</div>
-      <div><span style="font-weight:700;color:${geoColor}">Geocodio:</span> ${rec.geo_zip || ""}</div>
-      ${ rec.desc_zip ? `<div><span style="font-weight:700;color:${descBaseColor}">Description:</span> ${(''+rec.desc_zip).slice(0,5)}</div>` : "" }
-      <div style="color:#6b7280;margin-top:4px;">Lat/Lng: ${rec.lat}, ${rec.lng}</div>
-    `);
+function focusItem(i) {
+  if (i<0 || i>=VISIBLE.length) return;
+  currentIndex = i;
+  const rec = VISIBLE[i];
+  document.querySelectorAll('.item').forEach((el,idx)=>{ el.style.borderColor = idx===i ? '#60a5fa' : '#e5e7eb'; el.style.boxShadow = idx===i ? '0 0 0 1px #60a5fa' : 'none'; });
+  if (rec.lat!=null && rec.lng!=null) {
+    const ll = [rec.lat, rec.lng];
+    if (!marker) marker = L.marker(ll).addTo(map); else marker.setLatLng(ll);
   }
   drawZctaPolygons(rec.ad_zip, rec.geo_zip, rec.desc_zip);
 }
 
-listEl.addEventListener('click', (e) => {
-  let target = e.target;
-  while (target && !target.classList.contains('item')) target = target.parentElement;
-  if (target) {
-    const idx = parseInt(target.getAttribute('data-idx'), 10);
-    focusItem(idx);
-  }
-});
-document.getElementById('prevBtn').addEventListener('click', () => focusItem(Math.max(0, currentIndex - 1)));
-document.getElementById('nextBtn').addEventListener('click', () => focusItem(Math.min(DATA.length - 1, currentIndex + 1)));
-document.addEventListener('keydown', (e) => { if (e.key === 'ArrowUp') focusItem(Math.max(0, currentIndex - 1)); if (e.key === 'ArrowDown') focusItem(Math.min(DATA.length - 1, currentIndex + 1)); });
+function applyFilters() {
+  const descVal = document.getElementById('descFilter').value;
+  const matchVal = document.getElementById('matchFilter').value;
+  VISIBLE = ALL_DATA.filter(r=>{
+    const s = statusFor(r);
+    if (descVal==='has' && s==='missing') return false;
+    if (descVal==='missing' && s!=='missing') return false;
+    if (matchVal!=='any' && s!==matchVal) return false;
+    return true;
+  });
+  renderList(VISIBLE);
+  computeSummary(VISIBLE);
+  if (VISIBLE.length) focusItem(0);
+}
 
-if (DATA.length && DATA[0].lat != null && DATA[0].lng != null) { map.setView([DATA[0].lat, DATA[0].lng], 12); } else { map.setView([39.5, -98.35], 4); }
-if (DATA.length) focusItem(0);
+document.getElementById('descFilter').addEventListener('change', applyFilters);
+document.getElementById('matchFilter').addEventListener('change', applyFilters);
+
+document.addEventListener('click', e=>{
+  let t = e.target;
+  while (t && !t.classList.contains('item')) t = t.parentElement;
+  if (t) { const idx = parseInt(t.getAttribute('data-idx'), 10); focusItem(idx); }
+});
+
+document.getElementById('prevBtn').addEventListener('click', ()=>focusItem(Math.max(0, currentIndex-1)));
+document.getElementById('nextBtn').addEventListener('click', ()=>focusItem(Math.min(VISIBLE.length-1, currentIndex+1)));
+
+// Initial
+renderList(VISIBLE);
+computeSummary(VISIBLE);
+if (VISIBLE.length && VISIBLE[0].lat!=null && VISIBLE[0].lng!=null) map.setView([VISIBLE[0].lat, VISIBLE[0].lng], 12); else map.setView([39.5,-98.35], 4);
+if (VISIBLE.length) focusItem(0);
 </script>
 </body>
 </html>
